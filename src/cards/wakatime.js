@@ -166,18 +166,22 @@ const createTextNode = ({
 };
 
 /**
- * Recalculating percentages so that, compact layout's progress bar does not break when
- * hiding languages.
+ * Recalculating percentages so that the most used language's progress bar
+ * fills the full width, with every other language scaled relative to it
+ * (instead of relative to the sum of all displayed languages).
  *
  * @param {WakaTimeLang[]} languages The languages array.
  * @returns {void} The recalculated languages array.
  */
 const recalculatePercentages = (languages) => {
-  const totalSum = languages.reduce(
-    (totalSum, language) => totalSum + language.percent,
+  const maxPercent = languages.reduce(
+    (max, language) => Math.max(max, language.percent),
     0,
   );
-  const weight = +(100 / totalSum).toFixed(2);
+  if (maxPercent === 0) {
+    return;
+  }
+  const weight = +(100 / maxPercent).toFixed(2);
   languages.forEach((language) => {
     language.percent = +(language.percent * weight).toFixed(2);
   });
